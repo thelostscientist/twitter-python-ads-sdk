@@ -6,7 +6,7 @@ import sys
 import platform
 import datetime
 import logging
-import httplib
+import httplib2
 
 from dateutil import parser
 from requests_oauthlib import OAuth1Session
@@ -73,7 +73,7 @@ class Request(object):
                         body=response.json(), raw_body=response.text)
 
     def __enable_logging(self):
-        httplib.HTTPConnection.debuglevel = 1
+        httplib2.HTTPConnectionWithTimeout.debuglevel = 1
         logging.basicConfig(level=logging.DEBUG)
         logging.propagate = True
 
