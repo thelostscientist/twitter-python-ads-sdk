@@ -6,6 +6,9 @@ import sys
 import platform
 import datetime
 import logging
+import six
+import os
+import mimetypes
 
 try:
     import httplib2 as httplib
@@ -97,7 +100,55 @@ class Request(object):
         if self.client.sandbox:
             return self._SANDBOX_DOMAIN
         return self.options.get('domain', self._DEFAULT_DOMAIN)
+        
+    
+    def __chunck_image(filename, max_size, form_field="image", f=None):
+        if f is None:
+            try:
+                if os.path.getsize(self) > (max_size * 1024):
+                    raise Error('File is too big, must be less than %skb.' % max_size)
+            except os.error as e:
+                raise Error('Unable to access file: %s' % e.strerror)
+            
+            fp = open(filename, 'rb')
+            
+        else:
+            f.seek(0, 2)
+            if f.tell() > (max_size * 1024):
+                raise Error 'File is too big, must be less than %skb.' % max_size)
+                
+            f.seek(0)
+            fp = f
+        file_type = mimetypes.guess_type(filename)
+        if file_type is None:
+            raise Error('Unknown file type')
+        file_type = file_type[0]
+        if file_type not in ['image/gif', 'image/jpeg', 'image/png']:
+            raise Error('Invalid file type for image: %s' % file_type)
+            
+        if isinstance(filename, six.text_type):
+            filename = filename.encode("utf-8")
 
+        BOUNDARY = b'twitter-ads'
+        body = list()
+        body.append(b'--' + BOUNDARY)
+        body.append('Content-Disposition: form-data; name="{0}";'
+                    ' filename="{1}"'.format(form_field, filename)
+                    .encode('utf-8'))
+        body.append('Content-Type: {0}'.format(file_type).encode('utf-8'))
+        body.append(b'')
+        body.append(fp.read())
+        body.append(b'--' + BOUNDARY + b'--')
+        body.append(b'')
+        fp.close()
+        body = b'\r\n'.join(body)
+        
+        headers = {
+            'Content-Type': 'multipart/form-data; boundary=twitter-ads',
+            'Content-Length': str(len(body))
+        }
+
+        return headers, body
 
 class Response(object):
     """Generic container for API responses."""
