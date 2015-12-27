@@ -211,3 +211,45 @@ class Tweet(object):
         resource = klass.TWEET_CREATE.format(account_id=account.id)
         response = Request(account.client, 'post', resource, params=params).perform()
         return response.body['data']
+
+
+class AccountMedia(object):
+
+    MEIDA_ID_PREVIEW = '/0/accounts/{account_id}/tweet/account_media/{id}'
+    MEIDA_PREVIEW_DELETE = '/0/accounts/{account_id}/tweet/account_media'
+
+    def __init__(self):
+        raise NotImplementedError(
+            'Error! {name} cannot be instantiated.'.format(name=self.__class__.__name__))
+
+    @classmethod
+    def preview(klass, account, **kwargs):
+        """
+        TODO: review different use cases
+        """
+        resource = klass.MEIDA_PREVIEW_DELETE if kwargs.get('id') else klass.MEIDA_ID_PREVIEW
+        resource = resource.format(account_id=account.id, id=kwargs.get('id'))
+        response = Request(account.client, 'get', resource, params=kwargs).perform()
+        return response.body['data']
+    
+class MediaCreative(object):
+
+    CREATIVE_ID_PREVIEW = '/0/accounts/{account_id}/tweet/media_creatives'
+    CREATIVE_PREVIEW_DELETE = '/0/accounts/{account_id}/tweet/media_creatives/{id}'
+
+    def __init__(self):
+        raise NotImplementedError(
+            'Error! {name} cannot be instantiated.'.format(name=self.__class__.__name__))
+
+    @classmethod
+    def preview(klass, account, **kwargs):
+        """
+        TODO: review different use cases
+        """
+        resource = klass.CREATIVE_PREVIEW_DELETE if kwargs.get('id') else klass.CREATIVE_ID_PREVIEW
+        resource = resource.format(account_id=account.id, id=kwargs.get('id'))
+        response = Request(account.client, 'get', resource, params=kwargs).perform()
+        return response.body['data']
+ 
+
+
