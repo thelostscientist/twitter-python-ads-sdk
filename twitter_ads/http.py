@@ -102,7 +102,7 @@ class Request(object):
         return self.options.get('domain', self._DEFAULT_DOMAIN)
         
     
-    def __chunck_image(filename, max_size, form_field="image", f=None):
+    def __chunk_image(filename, max_size, form_field="image", f=None):
         if f is None:
             try:
                 if os.path.getsize(self) > (max_size * 1024):
